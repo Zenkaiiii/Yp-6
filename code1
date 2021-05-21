@@ -1,0 +1,75 @@
+#include <iostream>
+
+using namespace std;
+
+template <class T> void Blader (T* arr, int size)
+{
+
+    T tmp;
+
+    for(int x=0; x < size -1; x++) {
+        for (int y = 0; y < size - 1; y++) {
+            if (arr[y + 1] < arr[y]) {
+
+                tmp = arr[y + 1];
+                arr[y + 1] = arr[y];
+                arr[y] = tmp;
+            }
+
+        }
+    }
+}
+
+int main()
+{
+
+    int a[8] = {5, 4, 7, 1, 0, 3, 9, 2};
+    int b = 8;
+
+    cout << "Массив, содержащий целые числа в рандомном порядке: ";
+    for (int x=0; x < b; x++) {
+
+        cout << a[x] << " ";
+
+    }
+
+    cout << endl;
+
+    Blader (a,b);
+
+    cout << "Массив, содержащий целые числа в последовательном порядке по возрастанию: ";
+
+    for(int x=0; x < b; x++) {
+
+        cout << a[x] << " ";
+
+    }
+
+    cout << endl;
+
+    double c[8] = {3.1, 5.3, 6.2, 1.1, 1.9, 9.2, 0.7, 6.7 };
+
+    cout << "Массив, содержащий числа с плавающей точкой в рандомном порядке: ";
+
+    for(int x=0; x < b; x++) {
+
+        cout << c[x] << " ";
+
+    }
+
+    cout << endl;
+
+    Blader (c, b);
+
+    cout << "Массив, содержащий числа с плавающей точкой в последовательном порядке по возрастанию: ";
+
+    for (int x=0; x < b; x++) {
+
+        cout << c[x] << " ";
+
+    }
+
+    cout << endl;
+
+    return 0;
+}
