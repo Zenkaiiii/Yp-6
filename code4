@@ -1,0 +1,159 @@
+#include <iostream>
+#include <ostream>
+#include <string>
+#include <array>
+
+using namespace std;
+
+template <size_t f> class superlong
+
+{
+private:
+    const size_t SIZE = f / 32 + (f % 32 != 0);
+    array<unit32_t, f / 32 +  (f % 32 != 0)> value;
+    static string toHex(unit32_t c);
+    string toHex();
+
+public:
+    superlong() : value({0}) {}
+    superlong(const array<unit32_t, f / 32 + (f % 32 != 0)>& v): value(v) {}
+    superlong(const string & s);
+
+    superlong<f> &operator = (const superlong<f>& s);
+    superlong<f> operator + (const superlong<f>& s)const;
+
+    template <size_t X> friend ostream& << (ostream& stream, superlong<X> &s);
+};
+
+class error: public invalid_argument
+{
+public:
+    explicit error (const string& what_arg):
+        invalid_argument(what_arg) {}
+    explicit error (const char* what_arg):
+        invalid_argument(what_arg) {}
+};
+
+template <size_t f> superlong<f>::superlong(const string& s)
+{
+
+    string alphabetNum = "0123456789abcdef";
+
+    bool test;
+
+    for (auto str : s) {
+
+        test = false;
+
+        for(auto num : alphabetNum) {
+
+            if(str == num) {
+
+                test = true;
+                break;
+            }
+        }
+        if(!test)
+            throw error("invalid_argument");
+    }
+    value = {0};
+    int x = 0;
+
+    auto ptr_2 = s.end();
+    auto ptr_b = s.begin();
+
+    while (ptr_b != ptr_2) {
+
+        auto ptr_1 = ptr_2 - 8;
+
+        if (ptr_1 < ptr_b)
+            ptr_1 = ptr_b;
+
+        value[x] = stoul(string(ptr_1, ptr_2),0,16);
+        ptr_2 = ptr_1;
+        x++;
+    }
+}
+
+template <size_t f> superlong<f> &superlong<f> :: operator = (const superlong<f> &s)
+{
+    value = s.value;
+    return *this;
+}
+
+template <size_t f> superlong<f> superlong<f> :: operator + (const superlong<f> &s)const
+{
+    superlong<f> sum;
+    unit32_t CF = 0;
+
+    for (size_t x = 0; x < SIZE; x++) {
+
+        sum.value[x] = CF + value[x] + s.value[x];
+
+        if (sum.value[x] < value[x])
+            CF = 1;
+        else
+            CF = 0;
+    }
+
+    return sum;
+}
+
+template <size_t f> string superlong<f>:: toHex(unit32_t c)
+{
+
+    const char b[] = "0123456789abcdef";
+    string s;
+
+    for (int x=0; x<8; x++) {
+
+        s = b[c & 0xf] + s;
+        c >>= 4;
+    }
+
+    return s;
+}
+
+template <size_t x>
+string superlong<x>:: toHex()
+{
+
+    string s;
+
+    for(auto e:value) {
+        s = superlong<x> :: toHex(e) + s;
+    }
+    return s;
+}
+
+template <size_t X> ostream& operator<<(ostream& stream, superlong<X>& s)
+{
+    stream << s.toHex();
+    return stream;
+}
+
+int main()
+{
+
+    try {
+        const size_t SZ = 256;
+
+        superlong<SZ> num1;
+        superlong<SZ> num2("Является строкой");
+        superlong<SZ>
+        num3("7848392af5904abcdef17879543543234fee8390218312");
+
+        num1 = num3;
+        num1 = num1 + num2;
+
+        cout << num3 << endl;
+        cout << num2 << endl;
+        cout << num1 << endl;
+    }
+
+    catch (const error & e) {
+
+        cerr << "Ошибка: " << e.what() << endl;
+    }
+    return 0;
+}
